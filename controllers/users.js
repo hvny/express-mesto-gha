@@ -5,7 +5,13 @@ module.exports.createUser = (req, res) => {
   console.log(name, about, avatar);
   User.create({ name, about, avatar })
     .then((user) => res.status(201).send({ data: user }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name}.` }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные.' });
+      } else {
+        res.status(500).send({ message: `Произошла ошибка ${err.name}.` });
+      }
+    });
 };
 
 module.exports.getUsers = (req, res) => {
@@ -17,7 +23,13 @@ module.exports.getUsers = (req, res) => {
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.id)
     .then((user) => res.status(201).send({ data: user }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name}.` }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Пользователь не найден.' });
+      } else {
+        res.status(500).send({ message: `Произошла ошибка ${err.name}.` });
+      }
+    });
 };
 
 module.exports.updateProfile = (req, res) => {
