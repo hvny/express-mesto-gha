@@ -23,7 +23,13 @@ module.exports.createCard = (req, res) => {
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => res.send({ card }))
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка.' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные.' });
+      } else {
+        res.status(500).send({ message: 'На сервере произошла ошибка.' });
+      }
+    });
 };
 
 module.exports.likeCard = (req, res) => {
