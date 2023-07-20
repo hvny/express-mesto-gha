@@ -9,7 +9,7 @@ module.exports.createUser = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные.' });
       } else {
-        res.status(500).send({ message: `Произошла ошибка ${err.name}.` });
+        res.status(500).send({ message: 'На сервере произошла ошибка.' });
       }
     });
 };
@@ -17,7 +17,7 @@ module.exports.createUser = (req, res) => {
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name}.` }));
+    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка.' }));
 };
 
 module.exports.getUserById = (req, res) => {
@@ -33,7 +33,7 @@ module.exports.getUserById = (req, res) => {
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Пользователь не найден.' });
       } else {
-        res.status(500).send({ message: `Произошла ошибка ${err.name}.` });
+        res.status(500).send({ message: 'На сервере произошла ошибка.' });
       }
     });
 };
@@ -51,7 +51,7 @@ module.exports.updateProfile = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные.' });
       } else {
-        res.status(500).send({ message: `Произошла ошибка ${err.name}.` });
+        res.status(500).send({ message: 'На сервере произошла ошибка.' });
       }
     });
 };
@@ -69,7 +69,7 @@ module.exports.updateAvatar = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные.' });
       } else {
-        res.status(500).send({ message: `Произошла ошибка ${err.name}.` });
+        res.status(500).send({ message: 'На сервере произошла ошибка.' });
       }
     });
 };

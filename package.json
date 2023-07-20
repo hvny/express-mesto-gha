@@ -8,7 +8,7 @@
     "dev": "nodemon app.js",
     "start": "node app.js"
   },
-  "author": "",
+  "author": "vadim Elsukov",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.20.2",
