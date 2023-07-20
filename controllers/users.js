@@ -21,10 +21,10 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
-  User.findById(req.params.id)
+  User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        res.status(400).send({ message: 'Пользователь не найден.' });
+        res.status(404).send({ message: 'Пользователь не найден.' });
       } else {
         res.send({ data: user });
       }
