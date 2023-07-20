@@ -20,12 +20,26 @@ module.exports.createCard = (req, res) => {
     });
 };
 
-module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => res.send({ card }))
+module.exports.deleteCard = (req, res, next) => {
+  Card.findById(req.params.cardId)
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Карточка не найдена.' });
+        return;
+      }
+      if (card.owner.toString() === req.user._id) {
+        Card.deleteOne(card)
+          .then((cards) => {
+            res.send({ data: cards });
+          })
+          .catch(next);
+      } else {
+        res.send('Чужие карточки удалять нельзя.');
+      }
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Некорректные данные карточки.' });
+        res.status(400).send({ message: 'Переданы некорректные данные.' });
       } else {
         res.status(500).send('На сервере произошла ошибка.');
       }
