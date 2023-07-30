@@ -10,12 +10,7 @@ const app = express();
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64b5b69ffba49d59652a5e9e',
-  };
-  next();
-});
+
 app.use('/', auth, require('./routes/users'));
 app.use('/', auth, require('./routes/cards'));
 
