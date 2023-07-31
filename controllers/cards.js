@@ -1,9 +1,7 @@
 const Card = require('../models/card');
 
-const UnauthorizedError = require('../errors/UnauthorizedError');
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
-const ConflictError = require('../errors/ConflictError');
 const ServerError = require('../errors/ServerError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
