@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
+const NotFoundError = require('./errors/NotFoundError');
 const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
@@ -14,8 +15,8 @@ app.use(bodyParser.json());
 app.use('/', auth, require('./routes/users'));
 app.use('/', auth, require('./routes/cards'));
 
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Такого пути не существует.' });
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Такого пути не сущетсвует.'));
 });
 
 app.use((err, req, res, next) => {

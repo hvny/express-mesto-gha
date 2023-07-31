@@ -2,16 +2,21 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
-const UnauthorizedError = require('../errors/UnauthorizedError');
 
-module.exports.createUser = (req, res) => {
+const UnauthorizedError = require('../errors/UnauthorizedError');
+const NotFoundError = require('../errors/NotFoundError');
+const ValidationError = require('../errors/ValidationError');
+const ConflictError = require('../errors/ConflictError');
+
+module.exports.createUser = (req, res, next) => {
   const {
-    name,
-    about,
-    avatar,
-    email,
-    password,
+    name, about, avatar, email, password,
   } = req.body;
+
+  if (!email || !password) {
+    throw new ValidationError('Электронная почта и пароль обязательны.');
+  }
+
   bcrypt.hash(password, 10)
     .then((hash) => User.create(
       {
@@ -25,38 +30,52 @@ module.exports.createUser = (req, res) => {
       }))
       .catch((err) => {
         if (err.name === 'ValidationError') {
-          res.status(400).send({ message: 'Переданы некорректные данные.' });
-        } else {
-          res.status(500).send({ message: 'На сервере произошла ошибка.' });
+          next(new ValidationError('Переданы некорретные данные.'));
+          return;
         }
+        if (err.code === 11000) {
+          next(new ConflictError('Пользователь с такой электронной почтой уже существует.'));
+          return;
+        }
+        next(err);
       }));
 };
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка.' }));
+    .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Пользователь не найден.' });
-      } else {
-        res.send({ data: user });
+        throw new NotFoundError('Пользователь не найден.');
       }
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Пользователь не найден.' });
-      } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка.' });
+        next(new ValidationError('Переданы некорректные данные.'));
+        return;
       }
+      next();
     });
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.getUserInfo = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден.');
+      }
+      res.send({ data: user });
+    })
+    .catch(next);
+};
+
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   const owner = req.user._id;
   User.findByIdAndUpdate(
@@ -67,14 +86,14 @@ module.exports.updateProfile = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные.' });
-      } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка.' });
+        next(new ValidationError('Переданы некорректные данные.'));
+        return;
       }
+      next(err);
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const owner = req.user._id;
   User.findByIdAndUpdate(
@@ -82,13 +101,13 @@ module.exports.updateAvatar = (req, res) => {
     { avatar },
     { new: true, runValidators: true },
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные.' });
-      } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка.' });
+        next(new ValidationError('Переданы некорректные данные.'));
+        return;
       }
+      next(err);
     });
 };
 
