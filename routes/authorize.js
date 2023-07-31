@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 
-const { login, createUser } = require('../controllers/user');
+const { login, createUser } = require('../controllers/users');
 
 router.post('/signin', celebrate({
   body: Joi.object().keys({
