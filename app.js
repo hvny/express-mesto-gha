@@ -14,10 +14,13 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(require('./routes/authorize'));
+app.use('/', require('./routes/signin'));
+app.use('/', require('./routes/signup'));
 
-app.use('/', auth, require('./routes/users'));
-app.use('/', auth, require('./routes/cards'));
+app.use(auth);
+
+app.use('/', require('./routes/users'));
+app.use('/', require('./routes/cards'));
 
 app.use('*', (req, res, next) => {
   next(new NotFoundError('Такого пути не сущетсвует.'));
