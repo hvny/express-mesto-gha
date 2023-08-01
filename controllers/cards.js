@@ -46,7 +46,7 @@ module.exports.deleteCard = (req, res, next) => {
         next(new ValidationError('Переданы некорретные данные.'));
         return;
       }
-      next();
+      next(err);
     });
 };
 
@@ -88,6 +88,6 @@ module.exports.dislikeCard = (req, res, next) => {
         next(new ValidationError('Переданы некорретные данные.'));
         return;
       }
-      next();
+      next(err);
     });
 };

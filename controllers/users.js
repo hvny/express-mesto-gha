@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 
-const UnauthorizedError = require('../errors/UnauthorizedError');
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
 const ConflictError = require('../errors/ConflictError');
@@ -16,10 +15,6 @@ module.exports.createUser = (req, res, next) => {
     email,
     password,
   } = req.body;
-
-  if (!email || !password) {
-    throw new ValidationError('Электронная почта и пароль обязательны.');
-  }
 
   bcrypt.hash(password, 10)
     .then((hash) => {
@@ -65,7 +60,7 @@ module.exports.getUserById = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные.'));
         return;
       }
-      next();
+      next(err);
     });
 };
 
@@ -125,7 +120,5 @@ module.exports.login = (req, res, next) => {
       res.cookie('jwt', token, { httpOnly: true, sameSite: true, maxAge: 3600000 * 24 * 7 });
       res.send({ token });
     })
-    .catch(() => {
-      next(new UnauthorizedError('Вы не авторизовались.'));
-    });
+    .catch(next);
 };
